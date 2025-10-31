@@ -1,9 +1,27 @@
 import { GoogleGenAI, Modality, Part, Type } from "@google/genai";
 // Fix: Imported ImageIssue and WeatherData from the central types.ts file.
 import { ImageModel, PromptLength, ReferenceImage, ImageIssue, WeatherData } from '../types';
+// 🔑 Lấy API key từ biến môi trường Vercel (file .env hoặc Vercel Environment)
+const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
 let ai: GoogleGenAI | null = null;
+// Hàm khởi tạo GoogleGenAI client
+const getAiClient = (): GoogleGenAI => {
+  if (ai) {
+    return ai;
+  }
+    // Ưu tiên lấy key từ Vercel environment (apiKey)
+  const key = apiKey || localStorage.getItem('user_api_key');
 
+  if (!key) {
+    throw new Error("❌ Không tìm thấy API key. Hãy kiểm tra biến môi trường VITE_GOOGLE_API_KEY trên Vercel.");
+  }
+
+  ai = new GoogleGenAI(key);
+  return ai;
+};
+
+export { getAiClient };
 // This function acts as a singleton factory for the GoogleGenAI client.
 // It ensures that the client is initialized only once and handles key retrieval.
 const getAiClient = (): GoogleGenAI => {
