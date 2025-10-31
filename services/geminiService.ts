@@ -1,23 +1,25 @@
-import { GoogleGenerativeAI, Modality, Part, Type } from "@google/generative-ai";
-import { ImageModel, PromptLength, ReferenceImage, ImageIssue, WeatherData } from "../types";
+import { GoogleGenAI, Modality, Part, Type } from "@google/genai";
+import { ImageModel, PromptLength, ReferenceImage, ImageIssue, WeatherData } from '../types';
 
 // 🔑 Lấy API key từ biến môi trường Vercel (file .env hoặc Vercel Environment)
 const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
-let ai: GoogleGenerativeAI | null = null;
+let ai: GoogleGenAI | null = null;
 
-// ⚙️ Hàm khởi tạo GoogleGenerativeAI client
-const getAiClient = (): GoogleGenerativeAI => {
-  if (ai) return ai;
+// Hàm khởi tạo GoogleGenAI client
+const getAiClient = (): GoogleGenAI => {
+  if (ai) {
+    return ai;
+  }
 
-  // Ưu tiên lấy key từ môi trường, fallback sang localStorage
-  const key = apiKey || localStorage.getItem("user_api_key");
+  // Ưu tiên lấy key từ Vercel environment (apiKey)
+  const key = apiKey || localStorage.getItem('user_api_key');
 
   if (!key) {
     throw new Error("❌ Không tìm thấy API key. Hãy kiểm tra biến môi trường VITE_GOOGLE_API_KEY trên Vercel.");
   }
 
-  ai = new GoogleGenerativeAI(key);
+  ai = new GoogleGenAI(key);
   return ai;
 };
 
