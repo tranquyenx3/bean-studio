@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/brg24jL1/sprouting-bean-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BEAN Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://aistudiocdn.com/react@^19.1.1",
+          "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+          "react/": "https://aistudiocdn.com/react@^19.1.1/",
+          "@google/genai": "https://aistudiocdn.com/@google/genai@^1.19.0"
+        }
+      }
+    </script>
+    <style>
+      :root {
+        --bg-color: #f0f4f8;
+        --bg-color-transparent: rgba(240, 244, 248, 0);
+        --text-color: #1e293b;
+        --text-color-muted: #475569;
+        --primary-color: #0ea5e9;
+        --primary-color-glow: rgba(14, 165, 233, 0.7);
+        --secondary-color: #a855f7;
+        --secondary-color-glow: rgba(168, 85, 247, 0.6);
+        --panel-bg-color: rgba(255, 255, 255, 0.75);
+        --panel-border-color: rgba(56, 189, 248, 0.4);
+        --input-bg-color: rgba(226, 232, 240, 0.8);
+        --input-border-color: rgba(148, 163, 184, 0.4);
+        --input-placeholder-color: #94a3b8;
+        --scrollbar-track-color: #e2e8f0;
+        --scrollbar-thumb-color: #94a3b8;
+        --scrollbar-thumb-hover-color: #64748b;
+        --button-primary-bg: #0ea5e9;
+        --button-primary-text: #ffffff;
+        --button-secondary-bg: #a855f7;
+        --button-secondary-text: #ffffff;
+        --tag-bg: rgba(203, 213, 225, 0.7);
+        --tag-text: #334155;
+        --tag-hover-bg: #0ea5e9;
+        --tag-hover-text: #ffffff;
+      }
+
+      html.dark {
+        --bg-color: #020617;
+        --bg-color-transparent: rgba(2, 6, 23, 0);
+        --text-color: #e2e8f0;
+        --text-color-muted: #94a3b8;
+        --primary-color: #06b6d4;
+        --primary-color-glow: rgba(6, 182, 212, 0.6);
+        --secondary-color: #c084fc;
+        --secondary-color-glow: rgba(192, 132, 252, 0.5);
+        --panel-bg-color: rgba(2, 32, 71, 0.7);
+        --panel-border-color: rgba(6, 182, 212, 0.4);
+        --input-bg-color: rgba(8, 29, 63, 0.5);
+        --input-border-color: rgba(6, 182, 212, 0.3);
+        --input-placeholder-color: rgba(148, 224, 236, 0.4);
+        --scrollbar-track-color: #083344;
+        --scrollbar-thumb-color: #06b6d4;
+        --scrollbar-thumb-hover-color: #67e8f9;
+        --button-primary-bg: #06b6d4;
+        --button-primary-text: #082f49;
+        --button-secondary-bg: #9333ea;
+        --button-secondary-text: #ffffff;
+        --tag-bg: rgba(8, 47, 73, 0.7);
+        --tag-text: #a5f3fc;
+        --tag-hover-bg: #a855f7;
+        --tag-hover-text: #ffffff;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        transition: background-color 0.5s ease, color 0.5s ease;
+        overflow-x: hidden;
+      }
+      
+      #background-wrapper {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        width: 100%;
+        height: 100%;
+        transition: opacity 0.5s ease;
+      }
+      
+      .background-layer {
+        position: absolute;
+        inset: 0;
+        background-repeat: repeat;
+        will-change: background-position;
+      }
+      
+      /* --- Dark Theme Background --- */
+      @keyframes grid-pan { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
+      @keyframes stars-pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.8; } }
+      @keyframes data-stream { 0% { background-position: -200% -200%; } 100% { background-position: 200% 200%; } }
+      
+      #dark-bg { opacity: 0; }
+      html.dark #dark-bg { opacity: 1; }
+
+      #dark-bg .stars {
+        background-image: radial-gradient(var(--primary-color) 0.5px, transparent 0.5px);
+        background-size: 200px 200px;
+        opacity: 0.3;
+        animation: stars-pulse 15s ease-in-out infinite;
+      }
+      #dark-bg .grid {
+        background-image:
+          linear-gradient(var(--primary-color, #06b6d4) 1px, transparent 1px),
+          linear-gradient(90deg, var(--primary-color, #06b6d4) 1px, transparent 1px);
+        background-size: 40px 40px;
+        animation: grid-pan 60s linear infinite;
+        opacity: 0.1;
+      }
+      #dark-bg .streams {
+        background-image: repeating-linear-gradient(135deg, transparent, transparent 10px, var(--secondary-color, #c084fc) 10px, var(--secondary-color, #c084fc) 12px);
+        background-size: 200% 200%;
+        animation: data-stream 20s linear infinite;
+        opacity: 0.05;
+      }
+      
+      /* --- Light Theme Background --- */
+      @keyframes blueprint-pan-slow { 0% { background-position: 0% 0%; } 100% { background-position: 50px 50px; } }
+      @keyframes blueprint-pan-fast { 0% { background-position: 0% 0%; } 100% { background-position: -50px -50px; } }
+      @keyframes nodes-fade { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.6; } }
+
+      #light-bg { opacity: 0; }
+      html:not(.dark) #light-bg { opacity: 1; }
+      
+      #light-bg .grid {
+        background-image:
+          linear-gradient(var(--panel-border-color) 1px, transparent 1px),
+          linear-gradient(90deg, var(--panel-border-color) 1px, transparent 1px);
+        background-size: 50px 50px;
+        animation: blueprint-pan-slow 90s linear infinite;
+        opacity: 0.3;
+      }
+       #light-bg .nodes {
+        background-image: radial-gradient(var(--primary-color) 1.5px, transparent 1.5px);
+        background-size: 50px 50px;
+        animation: blueprint-pan-fast 60s linear infinite, nodes-fade 8s ease-in-out infinite;
+        opacity: 0.2;
+      }
+      
+      /* --- General Styles --- */
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track { background: var(--scrollbar-track-color); }
+      ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb-color); border-radius: 4px; border: 1px solid var(--scrollbar-track-color); }
+      ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover-color); }
+
+      @keyframes scan-in { from { transform: translateY(30px) scale(0.98); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+      .animate-scan-in { animation: scan-in 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+      
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+      @keyframes text-glow {
+        0%, 100% { text-shadow: 0 0 5px var(--primary-color-glow), 0 0 10px var(--primary-color-glow), 0 0 15px var(--primary-color-glow); }
+        50% { text-shadow: 0 0 10px var(--primary-color-glow), 0 0 20px var(--primary-color-glow), 0 0 30px var(--primary-color-glow); }
+      }
+      .animate-text-glow { animation: text-glow 3s ease-in-out infinite; }
+      
+      @keyframes title-float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+
+      @keyframes button-pulse-glow {
+        0%, 100% {
+          box-shadow: 0 0 15px var(--primary-color-glow), 0 0 5px var(--secondary-color-glow);
+          transform: scale(1);
+        }
+        50% {
+          box-shadow: 0 0 30px var(--primary-color-glow), 0 0 10px var(--secondary-color-glow), 0 4px 30px rgba(0, 0, 0, 0.2);
+          transform: scale(1.03);
+        }
+      }
+      .animate-title-float {
+        animation: title-float 6s ease-in-out infinite, text-glow 3s ease-in-out infinite;
+      }
+      .animate-button-pulse {
+        animation: button-pulse-glow 4s ease-in-out infinite;
+      }
+
+      .hud-border {
+        position: relative;
+        background-color: var(--panel-bg-color);
+        backdrop-filter: blur(16px) saturate(1.2);
+        border: 1px solid var(--panel-border-color);
+        box-shadow: 0 0 8px var(--primary-color-glow), 0 4px 30px rgba(0, 0, 0, 0.2), inset 0 0 15px rgba(0, 0, 0, 0.3);
+        transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        transform: perspective(1000px);
+        border-radius: 0.75rem; /* Increased border radius */
+      }
+      .hud-border:hover {
+        transform: perspective(1000px) rotateX(1deg) rotateY(-1deg) scale(1.01);
+        box-shadow: 0 0 12px var(--primary-color-glow), 0 0 24px var(--secondary-color-glow), 0 8px 40px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(0, 0, 0, 0.3);
+        border-color: var(--primary-color);
+      }
+      
+      .btn-hover-effect:hover:not(:disabled) {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 0 8px var(--primary-color-glow);
+        filter: brightness(1.15);
+      }
+
+      @keyframes pulse-border {
+        0%, 100% { border-color: var(--primary-color); box-shadow: 0 0 10px var(--primary-color-glow); }
+        50% { border-color: var(--secondary-color); box-shadow: 0 0 15px var(--secondary-color-glow); }
+      }
+      .dropzone-active {
+        animation: pulse-border 1.5s infinite;
+        transform: scale(1.02);
+      }
+      
+      /* --- HUD Segmented Control --- */
+      .hud-segmented-control {
+        display: flex;
+        background-color: color-mix(in srgb, var(--panel-bg-color) 50%, transparent);
+        padding: 4px;
+        border-radius: 0.75rem;
+        border: 1px solid var(--panel-border-color);
+        backdrop-filter: blur(10px);
+      }
+      .hud-segmented-control button {
+        flex: 1;
+        padding: 8px 12px;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease-in-out;
+        color: var(--text-color-muted);
+        font-weight: 600;
+        background-color: transparent;
+        border: 1px solid transparent;
+      }
+      .hud-segmented-control button:hover:not(.active) {
+        color: var(--text-color);
+        background-color: color-mix(in srgb, var(--primary-color) 15%, transparent);
+      }
+      .hud-segmented-control button.active {
+        color: var(--button-primary-text);
+        background-color: var(--primary-color);
+        box-shadow: 0 0 15px var(--primary-color-glow);
+        transform: scale(1.02);
+      }
+
+      /* --- HUD Preset Buttons --- */
+      .btn-hud-preset {
+        position: relative;
+        background-color: transparent;
+        border: 1px solid var(--panel-border-color);
+        color: var(--text-color-muted);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        backdrop-filter: blur(2px);
+      }
+      .btn-hud-preset::before,
+      .btn-hud-preset::after {
+        content: '';
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        border-style: solid;
+        border-color: var(--primary-color);
+        transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        opacity: 0;
+        transform: scale(1.5);
+      }
+      .btn-hud-preset::before {
+        top: 4px; left: 4px;
+        border-width: 2px 0 0 2px;
+      }
+      .btn-hud-preset::after {
+        bottom: 4px; right: 4px;
+        border-width: 0 2px 2px 0;
+      }
+      .btn-hud-preset .glow-line {
+        position: absolute;
+        top: 0;
+        left: -150%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(110deg, transparent 20%, var(--primary-color-glow) 50%, transparent 80%);
+        transition: left 0.6s ease;
+        z-index: 1;
+      }
+      .btn-hud-preset .content-wrapper {
+        position: relative;
+        z-index: 2;
+      }
+
+      .btn-hud-preset:hover {
+        background-color: color-mix(in srgb, var(--primary-color) 10%, transparent);
+        border-color: var(--primary-color);
+        color: var(--text-color);
+      }
+      .btn-hud-preset:hover::before,
+      .btn-hud-preset:hover::after {
+        opacity: 1;
+        transform: scale(1);
+      }
+      .btn-hud-preset:hover .glow-line {
+        left: 150%;
+      }
+
+      .btn-hud-preset.active {
+        background-color: color-mix(in srgb, var(--primary-color) 80%, black);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 15px var(--primary-color-glow), inset 0 0 10px color-mix(in srgb, var(--primary-color) 30%, transparent);
+      }
+      .btn-hud-preset.active::before,
+      .btn-hud-preset.active::after {
+        opacity: 1;
+        transform: scale(1);
+      }
+      html:not(.dark) .btn-hud-preset.active .label-container {
+        color: var(--button-primary-text);
+      }
+      html.dark .btn-hud-preset.active .label-container {
+        color: white;
+      }
+      .btn-hud-preset.active .label-container {
+        text-shadow: 0 0 5px rgba(0,0,0,0.5);
+      }
+
+      /* --- Result Inspector --- */
+      .result-inspector {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem; /* 12px */
+      }
+      .result-inspector-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem; /* 12px */
+      }
+      .result-inspector-item {
+        background-color: color-mix(in srgb, var(--panel-bg-color) 50%, transparent);
+        padding: 0.5rem 0.75rem; /* 8px 12px */
+        border-radius: 0.5rem;
+        border: 1px solid var(--panel-border-color);
+      }
+      .result-inspector-item .label {
+        font-size: 0.75rem; /* 12px */
+        color: var(--text-color-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .result-inspector-item .value {
+        font-size: 0.875rem; /* 14px */
+        font-weight: 600;
+        color: var(--text-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .result-prompt-viewer {
+          position: relative;
+          background-color: color-mix(in srgb, var(--panel-bg-color) 50%, transparent);
+          padding: 0.75rem; /* 12px */
+          border-radius: 0.5rem;
+          border: 1px solid var(--panel-border-color);
+      }
+      .result-prompt-viewer .label {
+        font-size: 0.75rem; /* 12px */
+        color: var(--text-color-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+      }
+      .result-prompt-viewer textarea {
+          width: 100%;
+          height: 100px;
+          background: transparent;
+          border: none;
+          resize: none;
+          color: var(--text-color);
+          font-family: inherit;
+          font-size: 0.875rem; /* 14px */
+          outline: none;
+          padding-right: 2.5rem; /* space for button */
+      }
+      .result-prompt-viewer textarea::-webkit-scrollbar { width: 6px; }
+      .result-prompt-viewer textarea::-webkit-scrollbar-track { background: transparent; }
+      .result-prompt-viewer textarea::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb-color); border-radius: 3px; }
+      .result-prompt-viewer textarea::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover-color); }
+
+      .result-prompt-viewer button {
+          position: absolute;
+          top: 0.5rem; /* 8px */
+          right: 0.5rem; /* 8px */
+          z-index: 10;
+      }
+      
+    </style>
+  <link rel="stylesheet" href="/index.css">
+</head>
+  <body class="font-mono">
+    <div id="background-wrapper">
+      <div id="dark-bg" class="background-layer">
+        <div class="background-layer stars"></div>
+        <div class="background-layer grid"></div>
+        <div class="background-layer streams"></div>
+      </div>
+      <div id="light-bg" class="background-layer">
+        <div class="background-layer grid"></div>
+        <div class="background-layer nodes"></div>
+      </div>
+    </div>
+    <div id="root" class="relative z-10"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

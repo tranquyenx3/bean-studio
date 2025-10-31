@@ -1,0 +1,8 @@
+{
+  "name": "BEAN Studio",
+  "description": "BEAN Studio is a creative co-pilot for image generation & editing. Enhance prompts for text-to-image models, use powerful AI presets for common editing tasks, and bring your ideas to life.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
