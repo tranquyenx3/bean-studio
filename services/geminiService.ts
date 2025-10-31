@@ -1,49 +1,28 @@
-import { GoogleGenAI, Modality, Part, Type } from "@google/genai";
-// Fix: Imported ImageIssue and WeatherData from the central types.ts file.
-import { ImageModel, PromptLength, ReferenceImage, ImageIssue, WeatherData } from '../types';
+import { GoogleGenerativeAI, Modality, Part, Type } from "@google/generative-ai";
+import { ImageModel, PromptLength, ReferenceImage, ImageIssue, WeatherData } from "../types";
+
 // 🔑 Lấy API key từ biến môi trường Vercel (file .env hoặc Vercel Environment)
 const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
-let ai: GoogleGenAI | null = null;
-// Hàm khởi tạo GoogleGenAI client
-const getAiClient = (): GoogleGenAI => {
-  if (ai) {
-    return ai;
-  }
-    // Ưu tiên lấy key từ Vercel environment (apiKey)
-  const key = apiKey || localStorage.getItem('user_api_key');
+let ai: GoogleGenerativeAI | null = null;
+
+// ⚙️ Hàm khởi tạo GoogleGenerativeAI client
+const getAiClient = (): GoogleGenerativeAI => {
+  if (ai) return ai;
+
+  // Ưu tiên lấy key từ môi trường, fallback sang localStorage
+  const key = apiKey || localStorage.getItem("user_api_key");
 
   if (!key) {
     throw new Error("❌ Không tìm thấy API key. Hãy kiểm tra biến môi trường VITE_GOOGLE_API_KEY trên Vercel.");
   }
 
-  ai = new GoogleGenAI(key);
+  ai = new GoogleGenerativeAI(key);
   return ai;
 };
 
 export { getAiClient };
-// This function acts as a singleton factory for the GoogleGenAI client.
-// It ensures that the client is initialized only once and handles key retrieval.
-const getAiClient = (): GoogleGenAI => {
-    if (ai) {
-        return ai;
-    }
 
-    // 1. Prioritize AI Studio's environment variable.
-    const apiKeyFromEnv = process.env.API_KEY;
-    // 2. Fallback to localStorage for local execution.
-    const apiKeyFromStorage = localStorage.getItem('user_api_key');
-
-    const apiKey = apiKeyFromEnv || apiKeyFromStorage;
-
-    if (!apiKey) {
-        // 3. If no key is found, throw a specific error for the UI to handle.
-        throw new Error('API_KEY_MISSING');
-    }
-
-    ai = new GoogleGenAI({ apiKey });
-    return ai;
-};
 
 /**
  * Saves a user-provided API key to localStorage and re-initializes the client.
