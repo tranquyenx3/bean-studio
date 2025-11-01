@@ -19,7 +19,7 @@ const getAiClient = (): GoogleGenAI => {
     throw new Error("❌ Không tìm thấy API key. Hãy kiểm tra biến môi trường VITE_GOOGLE_API_KEY trên Vercel.");
   }
 
-  ai = new GoogleGenAI(key);
+  ai = new GoogleGenAI({ apiKey: key });
   return ai;
 };
 
