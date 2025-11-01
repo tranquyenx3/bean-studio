@@ -11,10 +11,11 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [react()],
     // ĐÃ XÓA toàn bộ khối 'define'
-    // Vite sẽ tự động nạp các key có VITE_
+    // Vite sẽ tự động nạp các key bắt đầu bằng VITE_
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        // SỬA LỖI: Đổi '__dirname' thành 'process.cwd()'
+        '@': path.resolve(process.cwd(), '.'),
       }
     }
   };
