@@ -529,7 +529,7 @@ const App: React.FC = () => {
   
   useEffect(() => {
     // In AI Studio, process.env.API_KEY exists. Locally, we check localStorage.
-    const keyExists = !!process.env.API_KEY || !!localStorage.getItem('user_api_key');
+    const keyExists = !!import.meta.env.VITE_GOOGLE_API_KEY || !!localStorage.getItem('user_api_key');
     if (keyExists) {
       setIsAppReady(true);
     } else {
