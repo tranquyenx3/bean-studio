@@ -100,7 +100,7 @@ ${images && images.length > 0 ? '- **Reference Images:** The user has provided i
     }
 
     const response = await client.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-pro-vision',
         contents: { parts },
     });
     
@@ -155,7 +155,7 @@ export const generateImage = async (
     parts.push({ text: prompt });
 
     const response = await client.models.generateContent({
-      model: 'gemini-2.5-flash-image',
+      model: 'gemini-pro-vision',
       contents: { parts },
       config: {
         // FIX: The responseModalities array for image generation/editing with this model must only contain Modality.IMAGE.
@@ -239,7 +239,7 @@ Example (Vietnamese, with image of a cat and prompt "một con mèo"):
         }
         
         const response = await client.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-pro-vision',
             contents: { parts },
             config: {
                 responseMimeType: "application/json",
@@ -289,7 +289,7 @@ export const analyzeImageForIssues = async (image: ReferenceImage): Promise<Imag
         const userPrompt = `You are an expert photo analysis AI. Analyze the user's image and identify common photographic problems. Your response MUST be a valid JSON array containing strings from the following list ONLY: ["POOR_COMPOSITION", "UNBALANCED_LIGHTING", "DULL_COLORS", "BLURRY_OR_SOFT", "IMAGE_NOISE", "CHROMATIC_ABERRATION", "HARSH_SHADOWS", "WASHED_OUT_HIGHLIGHTS", "LOW_CONTRAST", "OVERSATURATED_COLORS", "UNEVEN_SKIN_TONE", "SKIN_BLEMISHES", "OILY_SKIN_SHINE", "DULL_EYES", "YELLOW_TEETH"]. If the image is good quality and has no major issues, return an empty array. Do not add any explanation or other text.`;
 
         const response = await client.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-pro-vision',
             contents: {
                 parts: [
                     { text: userPrompt },
@@ -367,7 +367,7 @@ Your response MUST be a single, valid JSON object with two keys:
 Do not include any other text, explanations, or markdown formatting.`;
 
         const response = await client.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-pro-vision',
             contents: {
                 parts: [
                     { text: userPrompt },
@@ -449,7 +449,7 @@ Example Output:
 "Long, flowing, tight spiral curls, dyed a vibrant fiery red."`;
 
         const response = await client.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-pro-vision',
             contents: {
                 parts: [
                     { text: userPrompt },
@@ -557,7 +557,7 @@ Your response MUST be a single, valid JSON object. Do not include any other text
         };
 
         const response = await client.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-pro-vision',
             contents: {
                 parts: [
                     { text: userPrompt },
@@ -621,7 +621,7 @@ Do not include any other text, explanations, or markdown formatting. Just the JS
         const userPrompt = `Coordinates: latitude=${lat}, longitude=${lon}`;
 
         const response = await client.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-pro',
             contents: userPrompt,
             config: {
                 systemInstruction,
